@@ -1,25 +1,42 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
-
+import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import Login from "./components/Login";
+import NavBar from "./components/NavBar";
+import Signup from "./components/Signup";
+import Home from "./components/Home";
+import firebase from "./firebase/config";
 function App() {
+  const [user, setUser] = useState<firebase.User | null>();
+
+  const isUserLogedIn = () => {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        setUser(user);
+      } else {
+        setUser(null);
+      }
+    });
+  };
+
+  useEffect(() => {
+    isUserLogedIn();
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <NavBar user={user} />
+      <Switch>
+        <Route exact path="/">
+          <Home user={user} />
+        </Route>
+        <Route exact path="/login">
+          <Login user={user} />
+        </Route>
+        <Route exact path="/signup">
+          <Signup user={user} />
+        </Route>
+      </Switch>
+    </Router>
   );
 }
 
